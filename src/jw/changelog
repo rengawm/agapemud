@@ -1,0 +1,728 @@
+CHANGES
+
+==== Reached Revision 11 ====
+
+Additions:
+Added the changelog!
+Added hitpoints to characters.
+Attacks now do damage.
+Characters can die.
+Dead NPCs disappear. Dead PCs get restored and leave combat. (For now.)
+Added a difficulty setting to CharProto.
+Added difficulty adjustments to the CharData(CharProto) constructor.
+Added the beginning of stat priority adjustments for races.
+Added the Formulas class, which contains methods to generate hp, xp gain, etc.
+
+Fixes:
+Fixed a bug where unexpectedly closed sockets created an infinite loop.
+
+Database Changes in SQL:
+ALTER TABLE `char_protos` ADD `char_proto_difficulty` INT NOT NULL AFTER `char_proto_level`;
+ALTER TABLE `races` ADD `race_hp_modifier` INT NOT NULL DEFAULT '0';
+
+==== Reached Revision 12 ====
+
+Restructured users/accounts. It's now one user per one character, and vice versa.
+Character creation happens during account creation.
+Removed live character creation methods.
+
+Database Changes in SQL:
+ALTER TABLE `users` DROP `user_name`;
+
+==== Reached Revision 13 ====
+
+Additions:
+Added "consider".
+Added experience point variables and xp gain for winning fights.
+Extended difficulty to CharData.
+Characters can now gain levels - "tnl" counter also added.
+
+Database Changes in SQL:
+ALTER TABLE `characters` ADD `character_tnl` INT NOT NULL AFTER `character_level`, ADD `character_difficulty` INT NOT NULL AFTER `character_tnl`;
+
+==== Reached Revision 14 ====
+
+Additions:
+Added areas.
+Each room is joined to an area.
+Mobs are standalone - only resets tie them to an area.
+Added "where".
+Added "areas".
+Added "redit" and all room editing capabilities.
+Added StaffCommands.java for general staff commands - moved some from OlcCommands to there.
+Added "goto".
+Added "slay".
+Restructured exit data storage. Each exit (from one room to another - one way, not two-way) is stored in the exits table.
+Instead of a static six-direction direction system, any string can be an exit direction.
+Added an exit check section to the command processing method to look for an exit if entered as a command.
+
+Database Changes in SQL:
+CREATE TABLE `jw`.`areas` (`area_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY , `area_name` VARCHAR( 255 ) NOT NULL , `area_description` TEXT NOT NULL) ENGINE = MYISAM ;
+ALTER TABLE `rooms` ADD `room_area` INT NOT NULL AFTER `room_id`;
+CREATE TABLE `jw`.`exits` (`exit_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY , `exit_from` INT NOT NULL , `exit_to` INT NOT NULL , `exit_direction` VARCHAR( 50 ) NOT NULL) ENGINE = MYISAM ;
+ALTER TABLE `rooms` DROP `room_north` , DROP `room_east` , DROP `room_south` , DROP `room_west` , DROP `room_up` , DROP `room_down` ;
+
+==== Reached Revision 15 ====
+
+Additions:
+Added redit delete functionality.
+Added some exit flags (door, closed, locked, hidden).
+All exits are saved as they are changed (opened, closed, etc). Resets will keep doors closed in the future.
+Added "open"
+Added "close"
+
+Database Changes in SQL:
+ALTER TABLE `exits` ADD `exit_door` INT NOT NULL , ADD `exit_closed` INT NOT NULL , ADD `exit_locked` INT NOT NULL , ADD `exit_hidden` INT NOT NULL;
+
+==== Reached Revision 16 ====
+
+Additions:
+Added "aedit" and associated area maintenance methods.
+
+==== Reached Revision 17 ====
+
+Additions:
+Added "rcedit" and associated race maintenance methods.
+Added OLC mode toggling - automatically prefixes commands with an OLC command if in OLC mode.
+Added many channels, including staff, reply/tell, and global channels.
+Added reply lists and saved tells.
+
+Changes:
+Cleaned up lots of code - added argument fetching methods instead of using the same code in each command.
+
+Database Changes in SQL:
+ALTER TABLE `races` ADD `race_description` TEXT NOT NULL AFTER `race_plural`;
+ALTER TABLE `users` ADD `user_pref_savetells` INT NOT NULL DEFAULT '0' AFTER `user_pref_compact`;
+
+==== Reached Revision 18 ====
+
+Additions:
+Added "grant"
+Added specific command permission granting
+Added "alias"
+Added custom aliases - they're checked before any other command type in CommandHandler.
+Added sexes to characters.
+Added socials and "gocial".
+Added a variable-dependent string producer (actString) in CommandHandler.
+
+Database Changes in SQL:
+ALTER TABLE `users` ADD `user_granted` TEXT NOT NULL AFTER `user_permissions`;
+ALTER TABLE `users` ADD `user_aliases` TEXT NOT NULL AFTER `user_lastconnected`;
+ALTER TABLE `characters` ADD `character_sex` VARCHAR( 1 ) NOT NULL AFTER `character_description`;
+CREATE TABLE `jw`.`socials` ( `social_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY , `social_name` VARCHAR( 255 ) NOT NULL , `social_cnoarg` VARCHAR( 255 ) NOT NULL , `social_onoarg` VARCHAR( 255 ) NOT NULL , `social_cfound` VARCHAR( 255 ) NOT NULL , `social_ofound` VARCHAR( 255 ) NOT NULL , `social_vfound` VARCHAR( 255 ) NOT NULL , `social_cself` VARCHAR( 255 ) NOT NULL , `social_oself` VARCHAR( 255 ) NOT NULL) ENGINE = MYISAM ;
+ALTER TABLE `char_protos` ADD `char_proto_sex` VARCHAR( 1 ) NOT NULL AFTER `char_proto_description`;
+
+==== Reached Revision 19 ====
+
+Additions:
+Added "sedit" and associated social maintenance methods.
+Added racegroups.
+Added an "info" argument to most OLC commands that shows information about what the user is editing.
+Added string formatting width/column methods and used them in all list outputs.
+
+Changes:
+Room IDs are now set manually.
+Areas have a "roomstart" and "roomend" that determine which rooms are included in the area.
+Cleaned up character creation code. All levels of character creation can now be moved around - no "temp" variables, etc.
+Significantly improved the appearance and wording of character creation.
+
+Fixes:
+Fixed the low-level input function to work properly with windows telnet's handling of backspace.
+
+Database Changes in SQL:
+ALTER TABLE `rooms` DROP `room_area` ;
+ALTER TABLE `areas` ADD `area_roomstart` INT NOT NULL , ADD `area_roomend` INT NOT NULL;
+ALTER TABLE `races` ADD `race_racegroup` VARCHAR( 200 ) NOT NULL AFTER `race_plural`;
+
+==== Reached Revision 20 ====
+
+Additions:
+Added "medit" and associated character prototype maintenance functions.
+Added "reset" and associated reset maintenance functions.
+
+Changes:
+Mob IDs are now set manually.
+
+Database Changes in SQL:
+ALTER TABLE `char_protos` CHANGE `char_proto_id` `char_proto_id` INT( 11 ) NOT NULL;
+ALTER TABLE `rooms` CHANGE `room_id` `room_id` INT( 11 ) NOT NULL;
+
+==== Reached Revision 21 ====
+
+Moved to Agape server, reset to revision 1.
+Added code to Database.java to work on both Agape and the old local DB, depending on port.
+
+==== Reached Revision 2 ====
+
+Added more functionality to the game update method - includes resets and doors.
+Added the "Update" class which is used to time future updates.
+Event-driven updates - respawn a mob ## seconds after its death, etc.
+Added special character interpretation.
+
+==== Reached Revision 3 ====
+
+Minor fix to the welcome screen's special characters.
+
+==== Reached Revision 4 ====
+
+Fixed output so that everything is converted from Java's UNICODE into ISO-8859-1 before being sent.
+
+==== Reached Revision 5 ====
+
+Added the rest of the shorthand commands.
+Added quote support to argument processing.
+Added replace and insert functions to the text editor.
+Added standardized color codes and re-colored all output to match.
+Added color customization to the preference command.
+Added a logs folder with system-created/maintained log files.
+Added the "bug" and "typo" commands.
+Added channel toggling (on/off per-user) to the preference command.
+
+Database Changes in SQL:
+ALTER TABLE `users` ADD `user_colors` TEXT NOT NULL AFTER `user_aliases`;
+ALTER TABLE `users` ADD `user_chans_off` TEXT NOT NULL AFTER `user_colors`;
+
+==== Reached Revision 6 ====
+
+Added "redit dig".
+Added "rename".
+Added "title". The CharData.longName variable is used for the title on players.
+Added "transfer".
+Added "at".
+Added "force".
+Added comments before all classes, class variables, and methods to generate a complete Javadoc manual.
+Added /docs.
+
+Database Changes in SQL:
+ALTER TABLE `areas` CHANGE `area_roomstart` `area_start` INT( 11 ) NOT NULL, CHANGE `area_roomend` `area_end` INT( 11 ) NOT NULL;
+
+==== Reached Revision 7 ====
+
+Minor bug fixes to hedit, the text editor, and a security check on force.
+
+==== Reached Revision 8 ====
+
+Many minor bug and display fixes.
+Added basic room progs and triggers.
+
+Database Changes in SQL:
+CREATE TABLE `AgapeMUD`.`roomprogs` (`roomprog_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY , `roomprog_room` INT NOT NULL , `roomprog_type` VARCHAR( 50 ) NOT NULL , `roomprog_args` VARCHAR( 50 ) NOT NULL , `roomprog_code` TEXT NOT NULL ) ENGINE = MYISAM ;
+ALTER TABLE `roomprogs` DROP `roomprog_room` , DROP `roomprog_type` , DROP `roomprog_args`;
+ALTER TABLE `roomprogs` ADD `roomprog_name` VARCHAR( 255 ) NOT NULL AFTER `roomprog_id` , ADD `roomprog_description` TEXT NOT NULL AFTER `roomprog_name`;
+ALTER TABLE `rooms` ADD `room_triggers` TEXT NOT NULL AFTER `room_description`;
+ALTER TABLE `characters` ADD `character_variables` TEXT NOT NULL AFTER `character_description`;
+
+==== Reached Revision 9 ====
+
+Minor bug fixes to saveRprog and rpedit.
+
+==== Reached Revision 10 ====
+
+Changed custom variables to be stored as a HashMap.
+Added if/else/endif statement support to progs.
+Added integer math evaluation to progs where appropriate.
+Added editor formatting - uses prompt type to either format as code or text.
+Added global variables.
+Added local variables specific to each run of a prog.
+Added framework for progs issuing commands using a dummy character.
+
+Database Changes in SQL:
+CREATE TABLE `AgapeMUD`.`globals` (`global_name` VARCHAR( 50 ) NOT NULL , `global_value` TEXT NOT NULL) ENGINE = MYISAM ;
+INSERT INTO `AgapeMUD`.`globals` (`global_name` ,`global_value`) VALUES ('globalvars', '');
+
+==== Reached Revision 11 ====
+
+"redit dig" will automatically choose a room ID if none is specified.
+Changed the text editor to show lines with /v and /vc instead of /l and /lc.
+Added a line break for people without compact mode on after room descs.
+Connections now idle out after 20 minutes of inactivity.
+Added screen refresh code to keep connections open.
+There can now be no more than one character on with the same name.
+
+==== Reached Revision 12 ====
+
+All channels (including tells, not including admin and say) now support the *social syntax.
+Refined the target search functions.
+Rewrote force permission checking - you can only force if you AND the target have access to the specified command.
+Added more rprog commands. (force, transfer)
+Changed mob storage methods to retain a unique ID for every mob that's ever saved.
+Added the framework for objects and object prototypes.
+
+Database Changes in SQL:
+CREATE TABLE `AgapeMUD`.`obj_protos` (`obj_proto_id` INT NOT NULL , `obj_proto_name` VARCHAR( 255 ) NOT NULL , `obj_proto_short` VARCHAR( 255 ) NOT NULL , `obj_proto_long` VARCHAR( 255 ) NOT NULL , `obj_proto_description` TEXT NOT NULL , PRIMARY KEY ( `obj_proto_id` ) ) ENGINE = MYISAM;
+CREATE TABLE `AgapeMUD`.`objects` (`object_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY , `object_proto` INT NOT NULL , `object_name` VARCHAR( 255 ) NOT NULL , `object_short` VARCHAR( 255 ) NOT NULL , `object_long` VARCHAR( 255 ) NOT NULL , `object_description` TEXT NOT NULL) ENGINE = MYISAM;
+ALTER TABLE `objects` ADD `object_character` INT NOT NULL AFTER `object_id`;
+
+==== Reached Revision 15 ====
+
+Fixed a bug with targetless global/channel socials.
+Made objects interactable: Added oedit, oload, inventory, drop, get, give, put.
+Objects are saved on PCs, on NPCs, and in rooms.
+Significantly increased the efficiency of database interactions.
+
+ALTER TABLE `objects` ADD `object_object` INT NOT NULL AFTER `object_character`;
+ALTER TABLE `objects` ADD `object_room` INT NOT NULL AFTER `object_id`;
+
+==== Reached Revision 16 ====
+
+Fixed object targeting when some matching objects are in the room and others are on the character.
+Fixed some output in give.
+Added database keepalive code.
+
+==== Reached Revision 18 ====
+
+Added wearlocs.
+Added object types.
+Added custom prompts / battle prompts.
+
+ALTER TABLE `objects` ADD `object_type` VARCHAR( 50 ) NOT NULL;
+ALTER TABLE `objects` ADD `object_wearloc` VARCHAR( 50 ) NOT NULL AFTER `object_character`;
+ALTER TABLE `obj_protos` ADD `obj_proto_type` VARCHAR( 50 ) NOT NULL;
+ALTER TABLE `users` ADD `user_prompt` TEXT NOT NULL AFTER `user_granted` , ADD `user_bprompt` TEXT NOT NULL AFTER `user_prompt`;
+
+==== Reached Revision 19 ====
+
+Added skills/spells.
+Added arguments to 'equipment'.
+Added gradual regeneration.
+Added stamina and mana to character data.
+Fixed a '^^/' bug in the text editor (was adding multiple lines).
+
+CREATE TABLE `AgapeMUD`.`skills` (`skill_name` VARCHAR( 255 ) NOT NULL ,`skill_cost` INT NOT NULL) ENGINE = MYISAM ;
+ALTER TABLE `characters` ADD `character_hp` INT NOT NULL AFTER `character_difficulty` , ADD `character_base_max_hp` INT NOT NULL AFTER `character_hp` , ADD `character_mana` INT NOT NULL AFTER `character_base_max_hp` , ADD `character_base_max_mana` INT NOT NULL AFTER `character_mana` , ADD `character_stamina` INT NOT NULL AFTER `character_base_max_mana` , ADD `character_base_max_stamina` INT NOT NULL AFTER `character_stamina`;
+
+=== Reached Revision 20 ====
+
+Added the remaining stats to characters, added stats to char_protos.
+Added commands: mload, oload, purge, set, queuedump, unlock, lock.
+Added combat information and more time formats to prompt.
+Added 0.4 second delays after movement.
+Prompts will display no more often than every 0.3 seconds. (makes combat neater)
+Added the skill/spell queue/casting system.
+Added Flags.java for arrays of valid values for things.
+Added flags to rooms, characters, and objects.
+Added room sectors.
+Added object materials.
+Added value1/2/3/4/5 to objects, as well as type-specific flags.
+Activated mob flags: stayroom, stayarea, staysector
+Activated room flags: nomob
+Activated object flags: notake nodrop container:closeable container:closed container:locked key:destroyonuse
+Activated object values: container:capacity container:key
+
+ALTER TABLE `characters` ADD `character_base_str` INT NOT NULL AFTER `character_base_max_stamina`, ADD `character_base_dex` INT NOT NULL AFTER `character_base_str`, ADD `character_base_con` INT NOT NULL AFTER `character_base_dex`, ADD `character_base_int` INT NOT NULL AFTER `character_base_con`, ADD `character_base_cha` INT NOT NULL AFTER `character_base_int`, ADD `character_base_arm_slash` INT NOT NULL AFTER `character_base_cha`, ADD `character_base_arm_bash` INT NOT NULL AFTER `character_base_arm_slash`, ADD `character_base_arm_pierce` INT NOT NULL AFTER `character_base_arm_bash`, ADD `character_base_res_frost` INT NOT NULL AFTER `character_base_arm_pierce`, ADD `character_base_res_fire` INT NOT NULL AFTER `character_base_res_frost`, ADD `character_base_res_lightning` INT NOT NULL AFTER `character_base_res_fire`, ADD `character_base_res_acid` INT NOT NULL AFTER `character_base_res_lightning`, ADD `character_base_res_good` INT NOT NULL AFTER `character_base_res_acid`, ADD `character_base_res_evil` INT NOT NULL AFTER `character_base_res_good`;
+ALTER TABLE `char_protos` ADD `char_proto_base_hp` INT NOT NULL , ADD `char_proto_base_mana` INT NOT NULL , ADD `char_proto_base_stamina` INT NOT NULL , ADD `char_proto_base_str` INT NOT NULL , ADD `char_proto_base_dex` INT NOT NULL , ADD `char_proto_base_con` INT NOT NULL , ADD `char_proto_base_int` INT NOT NULL , ADD `char_proto_base_cha` INT NOT NULL;
+ALTER TABLE `char_protos` ADD `char_proto_base_arm_slash` INT NOT NULL , ADD `char_proto_base_arm_bash` INT NOT NULL , ADD `char_proto_base_arm_pierce` INT NOT NULL , ADD `char_proto_base_res_frost` INT NOT NULL , ADD `char_proto_base_res_fire` INT NOT NULL , ADD `char_proto_base_res_lightning` INT NOT NULL , ADD `char_proto_base_res_acid` INT NOT NULL , ADD `char_proto_base_res_good` INT NOT NULL , ADD `char_proto_base_res_holy` INT NOT NULL;
+ALTER TABLE `char_protos` CHANGE `char_proto_base_res_holy` `char_proto_base_res_evil` INT( 11 ) NOT NULL;
+ALTER TABLE `obj_protos` ADD `obj_proto_value1` VARCHAR( 200 ) NOT NULL , ADD `obj_proto_value2` VARCHAR( 200 ) NOT NULL , ADD `obj_proto_value3` VARCHAR( 200 ) NOT NULL , ADD `obj_proto_value4` VARCHAR( 200 ) NOT NULL , ADD `obj_proto_value5` VARCHAR( 200 ) NOT NULL;
+ALTER TABLE `objects` ADD `object_value1` VARCHAR( 200 ) NOT NULL , ADD `object_value2` VARCHAR( 200 ) NOT NULL , ADD `object_value3` VARCHAR( 200 ) NOT NULL , ADD `object_value4` VARCHAR( 200 ) NOT NULL , ADD `object_value5` VARCHAR( 200 ) NOT NULL;
+ALTER TABLE `exits` DROP `exit_door`, DROP `exit_closed`, DROP `exit_locked`, DROP `exit_hidden`;
+ALTER TABLE `exits` ADD `exit_flags` VARCHAR( 200 ) NOT NULL;
+ALTER TABLE `exits` CHANGE `exit_flags` `exit_flags` TEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
+ALTER TABLE `rooms` ADD `room_flags` TEXT NOT NULL AFTER `room_description`;
+ALTER TABLE `obj_protos` ADD `obj_proto_flags` TEXT NOT NULL AFTER `obj_proto_type`;
+ALTER TABLE `objects` ADD `object_flags` TEXT NOT NULL AFTER `object_type`;
+ALTER TABLE `char_protos` ADD `char_proto_flags` TEXT NOT NULL AFTER `char_proto_difficulty`;
+ALTER TABLE `characters` ADD `character_flags` TEXT NOT NULL AFTER `character_difficulty`;
+ALTER TABLE `rooms` ADD `room_sector` VARCHAR( 50 ) NOT NULL AFTER `room_description`;
+ALTER TABLE `obj_protos` ADD `obj_proto_material` VARCHAR( 50 ) NOT NULL AFTER `obj_proto_description`;
+ALTER TABLE `objects` ADD `object_material` VARCHAR( 50 ) NOT NULL AFTER `object_description`;
+ALTER TABLE `objects` ADD `object_typeflags` TEXT NOT NULL AFTER `object_flags`;
+ALTER TABLE `obj_protos` ADD `obj_proto_typeflags` TEXT NOT NULL AFTER `obj_proto_flags`;
+ALTER TABLE `rooms` ADD `room_occlimit` INT NOT NULL AFTER `room_sector`;
+ALTER TABLE `exits` ADD `exit_key` INT NOT NULL;
+
+==== Reached Revision 21 ====
+
+Added commands: effects, ledit
+Added lootgroups.
+Set "score" output to something more permanent.
+Added effects.
+Added stat bonuses to equipment and effects.
+Activated object, inside, and lootgroup resets and finished up reset command syntax.
+Added some generic objects in a new area (range 100,000-101,000) - corpse, coins.
+Added level and cost to objects.
+Mobs now create a corpse with their items when they're killed.
+Added inventory item limits.
+Added dropping/giving/getting gold.
+
+CREATE TABLE `AgapeMUD`.`lootgroups` (`lootgroup_id` INT NOT NULL ,`lootgroup_name` VARCHAR( 200 ) NOT NULL ,`lootgroup_objects` TEXT NOT NULL) ENGINE = MYISAM;
+ALTER TABLE `lootgroups` CHANGE `lootgroup_objects` `lootgroup_contents` TEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
+ALTER TABLE `resets` ADD `reset_order` INT NOT NULL AFTER `reset_location`;
+ALTER TABLE `objects` ADD `object_resetfilled` INT NOT NULL;
+ALTER TABLE `obj_protos` ADD `obj_proto_level` INT NOT NULL AFTER `obj_proto_description` , ADD `obj_proto_cost` INT NOT NULL AFTER `obj_proto_level`;
+ALTER TABLE `objects` ADD `object_level` INT NOT NULL AFTER `object_description` , ADD `object_cost` INT NOT NULL AFTER `object_level`;
+ALTER TABLE `obj_protos` ADD `obj_proto_effects` TEXT NOT NULL;
+ALTER TABLE `objects` ADD `object_effects` TEXT NOT NULL AFTER `object_value5`;
+ALTER TABLE `objects` ADD `object_statmods` TEXT NOT NULL AFTER `object_value5`;
+ALTER TABLE `obj_protos` ADD `obj_proto_statmods` TEXT NOT NULL AFTER `obj_proto_value5`;
+
+==== Reached Revision 22 ====
+
+Added commands: scan, exits, boards, message, notes, supplications, covenants, arts, realm, clan, news, changes, penalties, ministry, sit, stand, yell
+Added message boards.
+Added ministry channel, defaults to off for new players.
+Added remaining base stats to races.
+Added the beginning of positions.
+
+CREATE TABLE `AgapeMUD`.`boards` ( `board_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY , `board_name` VARCHAR( 50 ) NOT NULL , `board_description` VARCHAR( 200 ) NOT NULL , `board_ttd` INT NOT NULL COMMENT 'Time to delete posts (in days)', `board_read_permissions` VARCHAR( 250 ) NOT NULL , `board_post_permissions` VARCHAR( 250 ) NOT NULL ) ENGINE = MYISAM ;
+CREATE TABLE `AgapeMUD`.`board_msgs` ( `board_msg_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY , `board_msg_board` INT NOT NULL , `board_msg_posted` BIGINT( 20 ) NOT NULL , `board_msg_to` VARCHAR( 255 ) NOT NULL , `board_msg_title` VARCHAR( 255 ) NOT NULL , `board_msg_text` TEXT NOT NULL) ENGINE = MYISAM ;
+ALTER TABLE `board_msgs` ADD `board_msg_author` VARCHAR( 255 ) NOT NULL AFTER `board_msg_posted`;
+INSERT INTO `AgapeMUD`.`boards` (`board_id` ,`board_name` ,`board_description` ,`board_ttd`) VALUES (NULL , 'notes', 'General Notes', '30'), (NULL , 'supplications', 'Praise & Prayer Requests', '30');
+INSERT INTO `AgapeMUD`.`boards` (`board_id` ,`board_name` ,`board_description` ,`board_ttd`) VALUES (NULL , 'covenants', 'Spiritual Discussions', '90'), (NULL , 'arts', 'Art, Poetry, and Stories', '90');
+INSERT INTO `AgapeMUD`.`boards` (`board_id` ,`board_name` ,`board_description` ,`board_ttd`) VALUES (NULL , 'realm', 'In-Character Stories', '90'), (NULL , 'clan', 'Your Clan''s Messages', '-1');
+INSERT INTO `AgapeMUD`.`boards` (`board_id` ,`board_name` ,`board_description` ,`board_ttd`) VALUES (NULL , 'news', 'News About Agape', '120'), (NULL , 'changes', 'Game Updates & Changes', '120');
+INSERT INTO `AgapeMUD`.`boards` (`board_id` ,`board_name` ,`board_description` ,`board_ttd`) VALUES (NULL , 'penalties', 'Discipline Summaries - See Staff Web Boards', '60');
+ALTER TABLE `users` ADD `user_board_last_read` TEXT NOT NULL AFTER `user_lastconnected`;
+ALTER TABLE `races` DROP `race_hp_modifier` ;
+ALTER TABLE `races` ADD `race_base_str` INT NOT NULL , ADD `race_base_dex` INT NOT NULL , ADD `race_base_con` INT NOT NULL , ADD `race_base_int` INT NOT NULL , ADD `race_base_cha` INT NOT NULL;
+ALTER TABLE `races` ADD `race_base_slash` INT NOT NULL , ADD `race_base_bash` INT NOT NULL , ADD `race_base_pierce` INT NOT NULL;
+ALTER TABLE `races` ADD `race_base_frost` INT NOT NULL , ADD `race_base_fire` INT NOT NULL , ADD `race_base_lightning` INT NOT NULL , ADD `race_base_acid` INT NOT NULL , ADD `race_base_good` INT NOT NULL , ADD `race_base_evil` INT NOT NULL;
+
+==== Reached Revision 23 ====
+
+Added commands: switch, return, rest, sleep, invisible, incognito, weather, time, description, ban, multok, role
+Finished positions, including sleep hiding output and disabling specific commands.
+Added invisibility (both staff commands and player spells)
+Refined skill/spell targeting and added more checks to deal with cast times.
+Added skill flags (valid target types) and targetType (offensive/defensive/etc).
+Added time-based darkness and checks for characters who have lights.
+Added area climates and season-based weather.
+Made individual board commands function as aliases to the message command when appropriate.
+Added banning and mult-oking, as well as checks for these on login.
+Added staff roles (for display on the who list)
+
+ALTER TABLE `characters` ADD `character_position` VARCHAR( 25 ) NOT NULL AFTER `character_flags` , ADD `character_position_target` INT NOT NULL AFTER `character_position`;
+ALTER TABLE `char_protos` ADD `char_proto_position` VARCHAR( 25 ) NOT NULL AFTER `char_proto_flags`;
+ALTER TABLE `characters` ADD `character_effects` TEXT NOT NULL AFTER `character_flags`;
+ALTER TABLE `rooms` ADD `room_effects` TEXT NOT NULL AFTER `room_flags`;
+ALTER TABLE `objects` DROP `object_effects`;
+ALTER TABLE `objects` ADD `object_effects` TEXT NOT NULL AFTER `object_flags`;
+ALTER TABLE `skills` ADD `skill_flags` TEXT NOT NULL, ADD `skill_target_type` VARCHAR( 50 ) NOT NULL;
+ALTER TABLE `areas` ADD `area_climate` VARCHAR( 50 ) NOT NULL , ADD `area_weather_cycle` VARCHAR( 50 ) NOT NULL , ADD `area_weather_last_cycle` VARCHAR( 50 ) NOT NULL , ADD `area_weather_timer` INT NOT NULL , ADD `area_weather_temp` INT NOT NULL , ADD `area_weather_cloud` INT NOT NULL , ADD `area_weather_precip` INT NOT NULL , ADD `area_weather_wind` INT NOT NULL;
+ALTER TABLE `users` ADD `user_role` VARCHAR( 100 ) NOT NULL AFTER `user_granted`;
+CREATE TABLE `AgapeMUD`.`mobans` (`moban_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY , `moban_type` VARCHAR( 15 ) NOT NULL , `moban_host` VARCHAR( 200 ) NOT NULL , `moban_start` BIGINT NOT NULL , `moban_end` BIGINT NOT NULL , `moban_description` VARCHAR( 200 ) NOT NULL) ENGINE = MYISAM ;
+ALTER TABLE `mobans` ADD `moban_category` VARCHAR( 50 ) NOT NULL AFTER `moban_id`;
+ALTER TABLE `users` ADD `user_host1` VARCHAR( 255 ) NOT NULL AFTER `user_lastconnected` , ADD `user_host2` VARCHAR( 255 ) NOT NULL AFTER `user_host1` , ADD `user_host3` VARCHAR( 255 ) NOT NULL AFTER `user_host2`;
+
+==== Reached Revision 24 ====
+
+Added commands: jog, visible, isay
+Added flags before names in look/who (invis, etc).
+Added automatic spam protection.
+Finished the skedit command.
+
+==== Reached Revision 25 ====
+
+Added commands: locate, advance, reclass, flee, recall, whowas, tt, trouble, jail, revoke, restore, ignore, stafflog
+Added working formulas for xp/level, xp/kill, con->hp, int->mana, chance to hit
+Stamina is now expended on movement and regenerates more quickly.
+Set up default prompts for new users.
+Finalized race/class selection during creation.
+Added the remaining classes and added class-path-based reclass.
+Added player death (equipment piles, infirmary, etc).
+Added "witness" and "brief" preference modes.
+Added "nowhere" and "silent" room flags.
+Added error recovery to the database keepalive method.
+Split the system log into multiple log types.
+
+ALTER TABLE `classes` ADD `class_parent` INT NOT NULL;
+UPDATE `AgapeMUD`.`classes` SET `class_name` = 'Fighter' WHERE `classes`.`class_id` =1 LIMIT 1 ;
+UPDATE `AgapeMUD`.`classes` SET `class_name` = 'Rogue' WHERE `classes`.`class_id` =2 LIMIT 1 ;
+UPDATE `AgapeMUD`.`classes` SET `class_name` = 'Mage' WHERE `classes`.`class_id` =3 LIMIT 1 ;
+UPDATE `AgapeMUD`.`classes` SET `class_name` = 'Cleric' WHERE `classes`.`class_id` =4 LIMIT 1 ;
+INSERT INTO `AgapeMUD`.`classes` (`class_id` ,`class_name` ,`class_parent`) VALUES (NULL , 'Veteran', '1'), (NULL , 'Warrior', '1'), (NULL , 'Paladin', '1'), (NULL , 'Dark Knight', '1');
+INSERT INTO `AgapeMUD`.`classes` (`class_id` ,`class_name` ,`class_parent`) VALUES (NULL , 'Champion', '5'), (NULL , 'Gladiator', '6'), (NULL , 'Templar', '7'), (NULL , 'Shadowmaster', '8');
+INSERT INTO `AgapeMUD`.`classes` (`class_id` ,`class_name` ,`class_parent`) VALUES (NULL , 'Thief', '2'), (NULL , 'Ranger', '2'), (NULL , 'Bandit', '2');
+INSERT INTO `AgapeMUD`.`classes` (`class_id` ,`class_name` ,`class_parent`) VALUES (NULL , 'Master Thief', '13'), (NULL , 'Stalker', '14'), (NULL , 'Privateer', '15');
+INSERT INTO `AgapeMUD`.`classes` (`class_id` ,`class_name` ,`class_parent`) VALUES (NULL , 'Wizard', '3'), (NULL , 'Seeker', '3'), (NULL , 'Conjurer', '3');
+INSERT INTO `AgapeMUD`.`classes` (`class_id` ,`class_name` ,`class_parent`) VALUES (NULL , 'Archmage', '19'), (NULL , 'Sage', '20'), (NULL , 'Illusionist', '21');
+INSERT INTO `AgapeMUD`.`classes` (`class_id` ,`class_name` ,`class_parent`) VALUES (NULL , 'Shaman', '4'), (NULL , 'Monk', '4'), (NULL , 'Healer', '4'), (NULL , 'Sorcerer', '4');
+INSERT INTO `AgapeMUD`.`classes` (`class_id` ,`class_name` ,`class_parent`) VALUES (NULL , 'Druid', '25'), (NULL , 'Master', '26'), (NULL , 'Priest', '27'), (NULL , 'Dark Priest', '28');
+ALTER TABLE `users` ADD `user_prefs` TEXT NOT NULL;
+ALTER TABLE `users` DROP `user_pref_showemail` , DROP `user_pref_ansi` , DROP `user_pref_compact` , DROP `user_pref_savetells` ;
+ALTER TABLE `users` ADD `user_troubled` INT NOT NULL AFTER `user_granted`;
+ALTER TABLE `users` ADD `user_revoked` TEXT NOT NULL AFTER `user_granted`;
+ALTER TABLE `users` ADD `user_ignoring` TEXT NOT NULL AFTER `user_revoked`;
+ALTER TABLE `commands` ADD `command_log` INT NOT NULL;
+ALTER TABLE `users` ADD `user_staff_logs` TEXT NOT NULL;
+
+==== Reached Revision 26 ====
+
+Fixed output bugs with locate and who.
+Fixed character creation.
+Switched default port to 1335.
+
+==== Reached Revision 27 ====
+
+Added commands: beep, delete, poofin, poofout, snoop, log, list, buy, sell, afk
+Added mob shops.
+Added easier paragraphing functionality to the text editor.
+
+ALTER TABLE `users` ADD `user_beeps` TEXT NOT NULL;
+ALTER TABLE `users` ADD `user_poofin` VARCHAR( 200 ) NOT NULL , ADD `user_poofout` VARCHAR( 200 ) NOT NULL;
+ALTER TABLE `users` ADD `user_logged` INT NOT NULL AFTER `user_troubled`;
+ALTER TABLE `characters` ADD `character_sells` VARCHAR( 200 ) NOT NULL AFTER `character_base_res_evil`;
+ALTER TABLE `char_protos` ADD `char_proto_sells` VARCHAR( 200 ) NOT NULL AFTER `char_proto_base_res_evil`;
+
+==== Reached Revision 28 ====
+==== Reached Revision 29 ====
+==== Reached Revision 30 ====
+
+Added commands: train, practice, skills, spells, use
+Added pathfinding code.
+Added mob "hating" memory and the "pursuer" flag for mobs that will automatically seek enemies.
+Skills can now be limited to certain classes at certain levels.
+Added character skill learning code.
+Added the 'training' type to allow mobs to sell skill training.
+Added class attribute valuation types.
+Race starting attributes have been reduced to an average of 20/stat instead of 50/stat.
+Added automatic attribute increases with leveling, and training points.
+Added passive skills/spells (use "passive" skill flag).
+Difficulty now ranges from 1 to 5.
+Skills will automatically check for learnedness increases with use.
+Added all weapon skills, dual wield, dodge, parry.
+Added combat formatting/colors/damage names.
+Added spell hit/damage formulas and healing.
+
+ALTER TABLE `skills` ADD `skill_availability` TEXT NOT NULL;
+ALTER TABLE `characters` ADD `character_learned` TEXT NOT NULL AFTER `character_sells`;
+ALTER TABLE `characters` ADD `character_trains` INT NOT NULL AFTER `character_tnl`;
+
+==== Reached Revision 31 ====
+
+Added commands: deposit, withdraw, sscore
+Added abilities: intelligence, bless
+Changed attributes to work by percentage, set new base average to 50.
+Fixed a few bugs with combat and shops.
+Players no longer award experience on death.
+Added banking.
+Added the prompt preference.
+Added custom timezone adjustment.
+
+ALTER TABLE `characters` ADD `character_bank` INT NOT NULL AFTER `character_gold`;
+ALTER TABLE `users` ADD `user_timeadj` INT NOT NULL AFTER `user_pref_pageLength`;
+
+==== Reached Revision 32 ====
+
+Added commands: group, follow, quiet, channels, gtell, logall
+Fixed some command alphabetical ordering issues.
+Added the /* editor command to execute something as a normal command from within the editor.
+Disconnects are now handled properly - character remains in the game for a time or until reconnected.
+Added a manual reset command ('reset now').
+Added more information about areas (flags, min/max levels).
+Added the autoloot and nofollow preferences.
+Added groups and multiple-participant experience formulas.
+
+ALTER TABLE `areas` ADD `area_minlevel` INT NOT NULL AFTER `area_description`, ADD `area_maxlevel` INT NOT NULL AFTER `area_minlevel`, ADD `area_flags` VARCHAR( 255 ) NOT NULL AFTER `area_maxlevel`;
+
+==== Reached Revision 33 ====
+
+Small fix to group experience formulas.
+Added autoassist preference.
+
+==== Reached Revision 34 ====
+
+Added commands: enter, eat, drink, examine
+Made portals interactive.
+Added food/drink and consumption-based regeneration.
+Renamed stamina to energy.
+Added timed object decay.
+Added janitor mob functionality.
+Added effects to objects, mob prototypes, and rooms.
+Added extra descriptions/keywords to mobs, objects, and rooms.
+Added arguments to medit and oedit to force an update of all instances of the target.
+Added variable skill delay settings (or cast times). Default is 3 seconds.
+Added melee speed and cast speed stats. (Can now have multiple attacks/round)
+
+ALTER TABLE `characters` CHANGE `character_stamina` `character_energy` INT( 11 ) NOT NULL , CHANGE `character_base_max_stamina` `character_base_max_energy` INT( 11 ) NOT NULL;
+ALTER TABLE `char_protos` CHANGE `char_proto_base_stamina` `char_proto_base_energy` INT( 11 ) NOT NULL;
+ALTER TABLE `obj_protos` ADD `obj_proto_decay` INT NOT NULL AFTER `obj_proto_cost`;
+ALTER TABLE `objects` ADD `obj_decay` INT NOT NULL AFTER `object_cost`, ADD `obj_last_touched` INT NOT NULL AFTER `obj_decay`;
+ALTER TABLE `objects` CHANGE `obj_decay` `object_decay` INT( 11 ) NOT NULL , CHANGE `obj_last_touched` `object_last_touched` INT( 11 ) NOT NULL;
+ALTER TABLE `char_protos` ADD `char_proto_effects` TEXT NOT NULL AFTER `char_proto_flags`;
+ALTER TABLE `rooms` ADD `room_extradescs` TEXT NOT NULL AFTER `room_description`;
+ALTER TABLE `characters` ADD `character_extradescs` TEXT NOT NULL AFTER `character_description`;
+ALTER TABLE `char_protos` ADD `char_proto_extradescs` TEXT NOT NULL AFTER `char_proto_description`;
+ALTER TABLE `objects` ADD `object_extradescs` TEXT NOT NULL AFTER `object_description`;
+ALTER TABLE `obj_protos` ADD `obj_proto_extradescs` TEXT NOT NULL AFTER `obj_proto_description`;
+ALTER TABLE `skills` ADD `skill_delay` INT NOT NULL AFTER `skill_cost`;
+
+==== Reached Revision 35 ====
+
+Scaled down hp and damage for mobs under level 10.
+Fixed a bug where characters couldn't see the room on logging in if dark.
+Exits are now ordered alphabetically in rooms.
+Fixed a bug which was allowing simultaneous new connections with the same IP/name.
+Custom timezone modifiers are now used in whois/whowas as well.
+Added portal support to jog.
+Added movement verbs (fleeing, jogging, walking, flying, etc.)
+Redesigned the "areas" command.
+Extra descriptions now support multiple keywords and can be removed.
+
+==== Reached Revision 36 ====
+
+Added or rewrote spells: Bless, Minor Heal, Harm, Holy Shield, Renew, Curse, Spring, Flame, Magic Shield, Create Food, Magic Missile, Freeze, Slow, Haste, Create Light, Resist Fire, Create Water
+Custom timezone modifiers are now used on the message boards.
+Janitor mobs will not destroy objects that can't be picked up.
+Characters are now returned to their previous position after eating/drinking.
+Fixed another simultaneous connection bug.
+Added stats for melee and casting accuracy (toHit bonuses).
+
+==== Reached Revision 37 ====
+
+Added spell: Inflame Weapon
+
+==== Reached Revision 38 ====
+
+Past few revisions have been tests to the SVN server using multiple users.
+Added echo, recho, echoat, gecho, aecho commands.
+Added line replace option in the editor (/lr)
+Added report command.
+Changed AFK to turn off once a character moves
+Added peace command
+Added spell Inflame Weapon
+
+==== Reached Revision 42 ====
+
+Added pvp to Preferences options. Upon entering PVP combat, players will receive an effect which removes their ability to turn PVP off for 5 minutes.
+Added tnl command.
+Fixed report to include field names.
+
+==== Reached Revision 43 ====
+
+Fixed tnl command to append "until next level."
+Changed CombatCommands to do checks for PVP preferences on attack.
+Changed Combat to do checks for PVP preferences on spell cast.
+Added spells: Holy Armor, Cure Poison, Remove Curse, Mark of Regret, Detect Poison, Righteousness, Cure Disease, Disease, True Sight, Heal, Resist Evil, Resist Holy, Disease, 
+Manna, Alertness, Fear, Levitation, Judgement, Empower, Smite, Detect Alignment
+Changed damage() so that combat will not start if attackers are in different rooms. Allows for effect damage.
+Added alignment to CharData and CharProto (to respective create, load, and save functions)
+Changed look() to check for detect_alignment spell and changed the way PVP flag gets displayed
+Added alignment to score command.
+
+ALTER TABLE `characters` ADD `character_align` INT NOT NULL AFTER `character_reset`;
+ALTER TABLE `char_protos` ADD `char_proto_align` INT NOT NULL AFTER `char_proto_sells`;
+
+==== Reached Revision 44 ====
+
+Added commands: zap, recite, quaff, vulgar
+Added passive skills: wands, scrolls
+Added support for multi-word special skill arguments.
+
+==== Reached Revision 45 ====
+
+Fixed align to allow for 5 characters in score.
+Gave checkForDeath its own method in Combat
+Added spells: Courage, Passage, Revival, Feebleness, Turn Undead, Fortify, Major heal, Drain Life, Greater Blessing, Beacon of Light, Divine Strength, Send Object, 
+Desperate Prayer, Great Heal, Zeal, Empathy
+
+==== Reached Revision 46 ====
+
+Added commands: cancel
+Effects are now flagged as good or bad, which affects cancellation.
+
+==== Reached Revision 47 ====
+
+Added commands: spar, cooldowns
+Added ability cooldowns.
+Added the sparring system.
+Slightly adjusted the search algorithm for help files.
+Added a prompt option for the length of your skill/spell queue. (%c)
+
+ALTER TABLE `skills` ADD  `skill_cooldown` INT NOT NULL AFTER  `skill_delay`;
+ALTER TABLE `characters` ADD  `character_cooldowns` TEXT NOT NULL AFTER  `character_learned`;
+
+==== Reached Revision 48 ====
+
+Assorted minor bug fixes.
+Revised object capacity checking code.
+Fixed "self" spells to ignore an argument - they will always target the caster.
+
+==== Reached Revision 49 ====
+
+Added commands: mpedit, opedit, level, award, extract
+Added mob progs.
+Added character, object, and room targeting by memory address or ID syntax.
+Revised a lot of code related to progs, most notably variable evaluation.
+Added object progs.
+Objects inside other objects will now reset properly.
+Open doors on hidden exits are no longer hidden.
+Added object flag: noput
+Finished prog triggers: greet, leave, random, command, speech
+
+RENAME TABLE  `AgapeMUD`.`roomprogs` TO  `AgapeMUD`.`progs`;
+ALTER TABLE  `progs` CHANGE  `roomprog_id`  `prog_id` INT( 11 ) NOT NULL AUTO_INCREMENT , CHANGE  `roomprog_name`  `prog_name` VARCHAR( 255 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL , CHANGE  `roomprog_description`  `prog_description` TEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL , CHANGE  `roomprog_code`  `prog_code` TEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
+ALTER TABLE  `progs` ADD  `prog_type` VARCHAR( 5 ) NOT NULL FIRST;
+ALTER TABLE  `characters` ADD  `character_triggers` TEXT NOT NULL AFTER  `character_variables`;
+ALTER TABLE  `char_protos` ADD  `char_proto_triggers` TEXT NOT NULL AFTER  `char_proto_extradescs`;
+ALTER TABLE  `progs` CHANGE  `prog_id`  `prog_id` INT( 11 ) NOT NULL;
+ALTER TABLE  `progs` DROP PRIMARY KEY;
+UPDATE progs SET prog_type = 'r';
+ALTER TABLE  `objects` ADD  `object_triggers` TEXT NOT NULL AFTER  `object_extradescs`;
+ALTER TABLE  `obj_protos` ADD  `obj_proto_triggers` TEXT NOT NULL AFTER  `obj_proto_extradescs`;
+
+==== Reached Revision 50 ====
+
+Added code to prevent mobs triggering their own speech progs.
+Added custom reset timers and door names to exits.
+Removed the un-bold black color code - {d - for accessibility.
+Added settable movement verbs for races/mobs.
+Added settable unarmed hit names for races/mobs.
+Shopkeepers will not accumulate more than 50 items, and all non-stocked items will disappear after 4 hours.
+Cleaned up mob death - no double kills of the same mob, queued abilities targeting killed mobs will be cleared.
+Finished prog triggers: skill, drop, time, dooropen, doorclose, doorunlock, doorlock, vischeck, look, load, use, wear, remove, give, get, death, kill, encounter, entry, combat, hitpercent, bribe
+
+ALTER TABLE  `exits` ADD  `exit_doorname` VARCHAR( 50 ) NOT NULL AFTER  `exit_direction` , ADD  `exit_timer` INT NOT NULL AFTER  `exit_doorname`;
+ALTER TABLE  `races` ADD  `race_movement` VARCHAR( 100 ) NOT NULL;
+ALTER TABLE  `char_protos` ADD  `char_proto_movement` VARCHAR( 100 ) NOT NULL AFTER  `char_proto_base_res_evil`;
+ALTER TABLE  `characters` ADD  `character_movement` VARCHAR( 100 ) NOT NULL AFTER  `character_base_res_evil`;
+ALTER TABLE  `races` ADD  `race_hitname` VARCHAR( 100 ) NOT NULL;
+ALTER TABLE  `char_protos` ADD  `char_proto_hitname` VARCHAR( 100 ) NOT NULL AFTER  `char_proto_movement`;
+ALTER TABLE  `characters` ADD  `character_hitname` VARCHAR( 100 ) NOT NULL AFTER  `character_movement`;
+
+==== Reached Revision 51 ====
+
+Minor bug fix for text arguments on directional triggers.
+
+==== Reached Revision 52 ====
+
+Added commands: lload
+Added skills: hunt
+Added arguments on oload and lload to load objects into rooms or other characters.
+Added additional variables for progs.
+Made a few adjustments to character creation and added the "previous experience" setting.
+Added load probability settings for individual items in lootgroups.
+Added "use" trigger checks for keys in the unlock/lock commands.
+Greet triggers can now be activated by transferring a character.
+Added the "put" oprog trigger.
+Added "use" trigger checks for all furniture commands (sit/stand/rest/sleep).
+
+CREATE TABLE  `AgapeMUD`.`quests` (`quest_id` INT NOT NULL , `quest_name` VARCHAR( 200 ) NOT NULL , `quest_offer` TEXT NOT NULL , `quest_complete` TEXT NOT NULL , `quest_objectives` TEXT NOT NULL , `quest_prerequisites` TEXT NOT NULL , `quest_rewards` TEXT NOT NULL , `quest_level` INT NOT NULL , `quest_difficulty` INT NOT NULL) ENGINE = MYISAM;
+ALTER TABLE  `quests` ADD  `quest_description` TEXT NOT NULL AFTER  `quest_offer`;
+ALTER TABLE  `users` ADD  `user_prevexp` INT NOT NULL AFTER  `user_role`;
+
+==== Reached Revision 53 ====
+
+Several small bug fixes to progs and OLC.
+
+==== Reached Revision 54 ====
+
+Several small bug fixes to progs.
+
+ALTER TABLE  `quests` DROP  `quest_objectives`;
+ALTER TABLE  `quests` ADD  `quest_maxlevel` INT NOT NULL AFTER  `quest_level`;
+ALTER TABLE  `quests` CHANGE  `quest_level`  `quest_minlevel` INT( 11 ) NOT NULL;
+ALTER TABLE  `quests` DROP  `quest_description`;
+ALTER TABLE  `quests` DROP  `quest_prerequisites`;
+ALTER TABLE  `quests` ADD  `quest_description` TEXT NOT NULL AFTER  `quest_name` , ADD  `quest_check` TEXT NOT NULL AFTER  `quest_description`;
+ALTER TABLE  `quests` ADD  `quest_accept` TEXT NOT NULL AFTER  `quest_offer`;
+ALTER TABLE  `quests` DROP  `quest_rewards`;
+ALTER TABLE  `quests` ADD  `quest_flags` TEXT NOT NULL;
+CREATE TABLE  `AgapeMUD`.`q_objectives` (`qo_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,`qo_quest` INT NOT NULL ,`qo_name` VARCHAR( 200 ) NOT NULL ,`qo_description` TEXT NOT NULL ,`qo_start` TEXT NOT NULL ,`qo_end` TEXT NOT NULL ,`qo_objtype` VARCHAR( 50 ) NOT NULL ,`qo_objid` INT NOT NULL ,`qo_objcount` INT NOT NULL ,`qo_trigger` VARCHAR( 200 ) NOT NULL ,`qo_script` TEXT NOT NULL ,`qo_flags` TEXT NOT NULL ,`qo_order` INT NOT NULL) ENGINE = MYISAM ;
+CREATE TABLE  `AgapeMUD`.`q_progress` (`qp_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,`qp_character` INT NOT NULL ,`qp_quest` INT NOT NULL ,`qp_objective` INT NOT NULL ,`qp_count` TEXT NOT NULL) ENGINE = MYISAM ;
+ALTER TABLE  `q_objectives` DROP  `qo_objtype` ,DROP  `qo_objid` ,DROP  `qo_objcount` ;
+ALTER TABLE  `q_objectives` ADD  `qo_activities` TEXT NOT NULL AFTER  `qo_end`;
+ALTER TABLE  `q_objectives` ADD  `qo_check` TEXT NOT NULL AFTER  `qo_script`
+ALTER TABLE  `q_objectives` CHANGE  `qo_trigger`  `qo_trigger` TEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
+ALTER TABLE  `q_objectives` CHANGE  `qo_trigger`  `qo_triggers` TEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
+ALTER TABLE  `quests` ADD  `quest_prereqs` TEXT NOT NULL AFTER  `quest_maxlevel`;
